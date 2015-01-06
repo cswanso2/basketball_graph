@@ -91,9 +91,19 @@ function overallEfficiencyDifference(playerA, playerB)
 	return Math.abs(playerA.shooting.effectiveFieldGoalPercentage - playerB.shooting.effectiveFieldGoalPercentage) * percentDifferenceMultiplier
 }
 
-function similarityShooting(playerA, playerB)
+function similarityPoints(playerA, playerB)
 {
-	return similarityShootingBreakDown(playerA, playerB) + similarityShootingEffieciency(playerA, playerB) + overallEfficiencyDifference(playerA, playerB)
+	if(playerA.shooting.points == null || playerB.shooting.points == null)
+	{
+		return 10
+	}
+	return Math.abs(playerA.shooting.points - playerB.shooting.points) / percentDifferenceMultiplier
+}
+
+
+function similarityScoring(playerA, playerB)
+{
+	return similarityShootingBreakDown(playerA, playerB) + similarityShootingEffieciency(playerA, playerB) + overallEfficiencyDifference(playerA, playerB) + similarityPoints(playerA, playerB)
 }
 
 function similarityMinutes(playerA, playerB)
@@ -102,7 +112,7 @@ function similarityMinutes(playerA, playerB)
 }
 
 function similarity(playerA, playerB){
-	return similarityShooting(playerA, playerB) + similarityMinutes(playerB, playerA)
+	return similarityScoring(playerA, playerB) + similarityMinutes(playerB, playerA)
 }
 
 function CompareBySimilarity(a,b){
@@ -127,20 +137,20 @@ for (var i = 0; i < playersRaw.length; i++) {
 	{
 		var oldPlayer = players[j]
 		var sim = similarity(oldPlayer, newPlayer)
+		
 		playerToSimilarPlayers[oldPlayer.id].push([sim, newPlayer.id, newPlayer.firstName, newPlayer.lastName])
 		playerToSimilarPlayers[newPlayer.id].push([sim, oldPlayer.id, oldPlayer.firstName, oldPlayer.lastName])
 	}
 }
 
 console.log("end")
-for (var i = 0; i < 10; i++)
+for (var i = 0; i < players.length; i++)
 {
 	var player = players[i]
 	playerToSimilarPlayers[player.id] = playerToSimilarPlayers[player.id].sort(CompareBySimilarity)
-	console.log(player.firstName + " " + player.lastName)
 	for(var j = 0; j < 5; j++)
 	{
 		console.log(playerToSimilarPlayers[player.id][j])
-	}
+	}	
 }
 console.log('start')
