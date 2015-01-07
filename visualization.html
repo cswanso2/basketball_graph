@@ -23,15 +23,20 @@ text {
 
 </style>
 <body>
+<div id="graph">
+</div>
+
+<div></div>
+
 <script>
 
 // http://blog.thomsonreuters.com/index.php/mobile-patent-suits-graphic-of-the-day/
 var links = [];
-for(var i =0; i < 200; i++)
+for(var i =0; i < 400; i++)
 {
     playerA = players[i]
     otherPlayers = playerToSimilarPlayers[playerA.id]
-    for(var j = 0; j < 3; j++)
+    for(var j = 0; j < 2; j++)
     {
         playerB = otherPlayers[j]
         links.push({source: playerA.firstName + " " + playerA.lastName, target: playerB[2] + " " + playerB[3], type: "connection"})
@@ -54,12 +59,12 @@ var force = d3.layout.force()
     .nodes(d3.values(nodes))
     .links(links)
     .size([width, height])
-    .linkDistance(20)
+    .linkDistance(100)
     .charge(-100)
     .on("tick", tick)
     .start();
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#graph").append("svg")
     .attr("width", width)
     .attr("height", height);
 
@@ -106,17 +111,6 @@ function mouseover() {
     d3.select(this).select("circle").style("stroke-width", 6); 
                 
                     // Figure out the neighboring node id's with brute strength because the graph is small
-    var nodeNeighbors = links.filter(function(link) {
-    return link.source.index === d.index || link.target.index === d.index;})
-      .map(function(link) {
-        // Map the list of links to a simple array of the neighboring indices - this is
-        // technically not required but makes the code below simpler because we can use         
-        // indexOf instead of iterating and searching ourselves.
-        return link.source.index === d.index ? link.target.index : link.source.index; });
-                
-        // Reset all circles - we will do this in mouseout also
-      svg.selectAll('circle').style('stroke', 'gray');
-
 
 }
 
