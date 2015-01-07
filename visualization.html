@@ -1,4 +1,4 @@
-<script src="player.js"></script>
+<script src="createGraph.js"></script>
 <!DOCTYPE html>
 <meta charset="utf-8">
 <script src="http://d3js.org/d3.v2.js?2.9.1"></script>
@@ -32,13 +32,17 @@ text {
 
 // http://blog.thomsonreuters.com/index.php/mobile-patent-suits-graphic-of-the-day/
 var links = [];
-for(var i =0; i < 400; i++)
+for(var i =0; i < players.length; i++)
 {
     playerA = players[i]
     otherPlayers = playerToSimilarPlayers[playerA.id]
     for(var j = 0; j < 2; j++)
     {
         playerB = otherPlayers[j]
+        if(playerB.lastName == "Bogut")
+        {
+          console.log(playerB)
+        }
         links.push({source: playerA.firstName + " " + playerA.lastName, target: playerB[2] + " " + playerB[3], type: "connection"})
     }
 }

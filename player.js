@@ -20,8 +20,15 @@ var fieldGoalsCatchAndShoot = 18
 var fieldGoalsPullUp = 19
 var effectiveFieldGoalPercentage = 20
 
-function playerShooting(shootingArray) {
-
+function playerShooting(shootingArray) 
+{
+	for(var i = 0; i < shootingArray.length; i++)
+	{
+		if(shootingArray[i] == null)
+		{
+			shootingArray[i] = 0
+		}
+	}
 	this.points = shootingArray[pointsPerGame]
 	this.pointsDrive = shootingArray[pointsDrive]
 	this.fieldGoalPercentageDrive = shootingArray[fieldGoalPercentageDrive]
@@ -39,15 +46,43 @@ function playerShooting(shootingArray) {
 	this.totalFieldGoals = this.fieldGoalsDrive + this.fieldGoalsClose + this.fieldGoalsCatchAndShoot + this.fieldGoalsPullUp	
 }
 
+var rebounds = 6
+var reboundChances = 7
+var reboundPercent = 8
+var reboundContested = 9
+var reboundUncontested = 10
+var reboundUncontestedPercent = 11
+var totalRebounds = 12
+var offensiveRebounds = 13
+var offenssiveReboundChances = 14
+var offensiveReboundPercentage = 15
+var defensiveRebounds = 19
+var defensiveReboundChances = 20
+var defensiveReboundPercentage = 21
 
-function player(shootingArray, reboundingArray) {
-	for(var i = 0; i < shootingArray.length; i++)
+function playerRebounding(reboundingArray)
+{
+	for(var i = 0; i < reboundingArray.length; i ++)
 	{
-		if(shootingArray[i] == null)
+		if(reboundingArray[i] == null)
 		{
-			shootingArray[i] = 0
+			reboundingArray[i] = 0
 		}
 	}
+	this.rebounds = reboundingArray[rebounds]
+	this.reboundChances = reboundingArray[reboundChances]
+	this.reboundPercent = reboundingArray[reboundPercent]
+	this.reboundUncontested = reboundingArray[reboundUncontested]
+	this.offensiveRebounds = reboundingArray[offensiveRebounds]
+	this.offenssiveReboundChances = reboundingArray[offenssiveReboundChances]
+	this.offensiveReboundPercentage = reboundingArray[offensiveReboundPercentage]
+	this.defensiveRebounds = reboundingArray[defensiveRebounds]
+	this.defensiveReboundChances = reboundingArray[defensiveReboundChances]
+	this.defensiveReboundPercentage = reboundingArray[defensiveReboundPercentage]
+}
+
+function player(shootingArray, reboundingArray) 
+{
 	this.id = shootingArray[playerId]
 	this.firstName = shootingArray[firstName]
 	this.lastName = shootingArray[lastName]
@@ -55,4 +90,5 @@ function player(shootingArray, reboundingArray) {
 	this.games = shootingArray[games]
 	this.minutes = shootingArray[minutesPerGame]
 	this.shooting = new playerShooting(shootingArray)
+	this.rebounding = new playerRebounding(reboundingArray)
 } 

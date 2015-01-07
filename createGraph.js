@@ -1,5 +1,104 @@
 //shooting enum
+var playerId = 0
+var fullName = 1
+var firstName = 2
+var lastName = 3
+var team = 4
+var games = 5
+var minutesPerGame = 6
+var pointsPerGame = 7
+var pointsDrive = 8
+var fieldGoalPercentageDrive = 9
+var pointsClose = 10
+var fieldGoalPercentageClose = 11
+var pointsCatchAndShoot = 12
+var fieldGoalPercentageCatchAndShoot = 13
+var pointsPullUp = 14
+var fieldGoalPercentagePullUp = 15
+var fieldGoalsDrive = 16
+var fieldGoalsClose = 17
+var fieldGoalsCatchAndShoot = 18
+var fieldGoalsPullUp = 19
+var effectiveFieldGoalPercentage = 20
 
+function playerShooting(shootingArray) 
+{
+	for(var i = 0; i < shootingArray.length; i++)
+	{
+		if(shootingArray[i] == null)
+		{
+			shootingArray[i] = 0
+		}
+	}
+	this.points = shootingArray[pointsPerGame]
+	this.pointsDrive = shootingArray[pointsDrive]
+	this.fieldGoalPercentageDrive = shootingArray[fieldGoalPercentageDrive]
+	this.pointsClose = shootingArray[pointsClose]
+	this.fieldGoalPercentageClose = shootingArray[fieldGoalPercentageClose]
+	this.pointsCatchAndShoot = shootingArray[pointsCatchAndShoot]
+	this.fieldGoalPercentageCatchAndShoot = shootingArray[fieldGoalPercentageCatchAndShoot]
+	this.pointsPullUp = shootingArray[pointsPullUp]
+	this.fieldGoalPercentagePullUp = shootingArray[fieldGoalPercentagePullUp]
+	this.fieldGoalsDrive = shootingArray[fieldGoalsDrive]
+	this.fieldGoalsClose = shootingArray[fieldGoalsClose]
+	this.fieldGoalsCatchAndShoot = shootingArray[fieldGoalsCatchAndShoot]
+	this.fieldGoalsPullUp = shootingArray[fieldGoalsPullUp]
+	this.effectiveFieldGoalPercentage = shootingArray[effectiveFieldGoalPercentage]
+	this.totalFieldGoals = this.fieldGoalsDrive + this.fieldGoalsClose + this.fieldGoalsCatchAndShoot + this.fieldGoalsPullUp	
+}
+
+//[0"PLAYER_ID",1"PLAYER",2"FIRST_NAME",3"LAST_NAME",4"TEAM_ABBREVIATION",5"GP",6"MIN","REB","REB_CHANCE","REB_COL_PCT","REB_CONTESTED","REB_UNCONTESTED","REB_UNCONTESTED_PCT","REB_TOT","OREB","OREB_CHANCE","OREB_COL_PCT","OREB_CONTESTED","OREB_UNCONTESTED","OREB_UNCONTESTED_PCT","DREB","DREB_CHANCE","DREB_COL_PCT","DREB_CONTESTED","DREB_UNCONTESTED","DREB_UNCONTESTED_PCT"]
+
+var rebounds = 7
+var reboundChances = 8
+var reboundPercent = 9
+var reboundContested = 10
+var reboundUncontested = 11
+var reboundUncontestedPercent = 12
+var totalRebounds = 13
+var offensiveRebounds = 14
+var offenssiveReboundChances = 15
+var offensiveReboundPercentage = 16
+var defensiveRebounds = 20
+var defensiveReboundChances = 21
+var defensiveReboundPercentage = 22
+
+function playerRebounding(reboundingArray)
+{
+	for(var i = 0; i < reboundingArray.length; i ++)
+	{
+		if(reboundingArray[i] == null)
+		{
+			reboundingArray[i] = 0
+		}
+		if(reboundingArray[i] == '-')
+		{
+			reboundingArray[i] = 0
+		}
+	}
+	this.rebounds = reboundingArray[rebounds]
+	this.reboundChances = reboundingArray[reboundChances]
+	this.reboundPercent = this.reboundChances != 0 ? this.rebounds / this.reboundChances : 0
+	this.reboundUncontested = reboundingArray[reboundUncontested]
+	this.offensiveRebounds = reboundingArray[offensiveRebounds]
+	this.offensiveReboundChances = reboundingArray[offenssiveReboundChances]
+	this.offensiveReboundPercentage = this.offensiveReboundChances != 0 ? this.offensiveRebounds / this.offensiveReboundChances : 0
+	this.defensiveRebounds = reboundingArray[defensiveRebounds]
+	this.defensiveReboundChances = reboundingArray[defensiveReboundChances]
+	this.defensiveReboundPercentage = this.defensiveReboundChances != 0 ? this.defensiveRebounds / this.defensiveReboundChances : 0
+}
+
+function player(shootingArray, reboundingArray) 
+{
+	this.id = shootingArray[playerId]
+	this.firstName = shootingArray[firstName]
+	this.lastName = shootingArray[lastName]
+	this.team = shootingArray[team]
+	this.games = shootingArray[games]
+	this.minutes = shootingArray[minutesPerGame]
+	this.shooting = new playerShooting(shootingArray)
+	this.rebounding = new playerRebounding(reboundingArray)
+} 
 
 var percentDifferenceMultiplier = 10
 
@@ -54,8 +153,33 @@ function similarityMinutes(playerA, playerB)
 	return Math.abs(playerA.minutes - playerB.minutes) / percentDifferenceMultiplier;
 }
 
+var reboundingShift = 4
+function similarityTotalRebounding(playerA, playerB)
+{
+	 var defensiveDifference = Math.abs(playerA.rebounding.defensiveRebounds - playerB.rebounding.defensiveRebounds)
+	 var offensiveDifference = Math.abs(playerA.rebounding.offensiveRebounds - playerB.rebounding.offensiveRebounds)
+	 return (defensiveDifference + offensiveDifference) / reboundingShift
+}
+
+var reboundingMultiplier = 6
+function similarityReboundingEfficiency(playerA, playerB)
+{
+	 var defensiveDifference = Math.abs(playerA.rebounding.defensiveReboundPercentage - playerB.rebounding.defensiveReboundPercentage)
+	 var offensiveDifference = Math.abs(playerA.rebounding.offensiveReboundPercentage - playerB.rebounding.offensiveReboundPercentage)
+	 console.log(offensiveDifference)
+	 console.log(defensiveDifference)
+	 return (defensiveDifference + offensiveDifference) * reboundingMultiplier
+}
+
+function similarityRebounding(playerA, playerB)
+{
+	return similarityTotalRebounding(playerA, playerB) + similarityReboundingEfficiency(playerA, playerB)
+}
+
 function similarity(playerA, playerB){
-	return similarityScoring(playerA, playerB) + similarityMinutes(playerB, playerA)
+	//if(!similarityRebounding(playerA, playerB))
+	//	console.log(playerA)
+	return similarityScoring(playerA, playerB) + similarityMinutes(playerB, playerA) + similarityRebounding(playerA, playerB)
 }
 
 function CompareBySimilarity(a,b){
@@ -109,6 +233,7 @@ for (var i = 0; i < players.length; i++)
 {
 	var player = players[i]
 	playerToSimilarPlayers[player.id] = playerToSimilarPlayers[player.id].sort(CompareBySimilarity)
+	//console.log(player.lastName)
 	for(var j = 0; j < 5; j++)
 	{
 		//console.log(playerToSimilarPlayers[player.id][j])
