@@ -141,7 +141,7 @@ function player(shootingArray, reboundingArray, defenseArray, passingArray)
 	this.passing = new playerPassing(passingArray)
 } 
 
-var percentDifferenceMultiplier = 10
+var percentDifferenceMultiplier = 4.6
 
 function similarityShootingBreakDown(playerA, playerB){
 	if( playerA.shooting.totalFieldGoals == 0 || playerB.shooting.totalFieldGoals == 0)
@@ -155,7 +155,7 @@ function similarityShootingBreakDown(playerA, playerB){
 	return percentDifferenceMultiplier * (differenceClose + differenceDrive + differencePullUp + differenceCatchAndShoot)
 }
 
-var similarityShootingEffieciencyMultiplier = 5
+var similarityShootingEffieciencyMultiplier = 2.6
 function similarityShootingEffieciency(playerA, playerB)
 {
 	differenceDrive = Math.abs(playerA.shooting.fieldGoalPercentageDrive - playerB.shooting.fieldGoalPercentageDrive)
@@ -183,10 +183,15 @@ function similarityPoints(playerA, playerB)
 	return Math.abs(playerA.shooting.points - playerB.shooting.points) / percentDifferenceMultiplier
 }
 
-
+var scoringCheckBox = document.getElementById("scoring");
+var scoringTotal = 0;
 function similarityScoring(playerA, playerB)
 {
-	return similarityShootingBreakDown(playerA, playerB) + similarityShootingEffieciency(playerA, playerB) + overallEfficiencyDifference(playerA, playerB) + similarityPoints(playerA, playerB)
+	if(!scoringCheckBox.checked)
+		return 0
+	var value = similarityShootingBreakDown(playerA, playerB) + similarityShootingEffieciency(playerA, playerB) + overallEfficiencyDifference(playerA, playerB) + similarityPoints(playerA, playerB)
+	scoringTotal += value
+	return value; 
 }
 
 function similarityMinutes(playerA, playerB)
@@ -197,8 +202,8 @@ function similarityMinutes(playerA, playerB)
 var reboundingShift = 3;
 function similarityTotalRebounding(playerA, playerB)
 {
-	 var defensiveDifference = Math.abs(playerA.rebounding.defensiveRebounds / playerA.minutes - playerB.rebounding.defensiveRebounds / playerB.minutes)
-	 var offensiveDifference = Math.abs(playerA.rebounding.offensiveRebounds / playerA.minutes - playerB.rebounding.offensiveRebounds / playerB.minutes)
+	 var defensiveDifference = Math.abs(playerA.rebounding.defensiveRebounds - playerB.rebounding.defensiveRebounds / playerB.minutes)
+	 var offensiveDifference = Math.abs(playerA.rebounding.offensiveRebounds - playerB.rebounding.offensiveRebounds)
 	 return (defensiveDifference + offensiveDifference) / reboundingShift
 }
 
@@ -210,17 +215,23 @@ function similarityReboundingEfficiency(playerA, playerB)
 	 return (defensiveDifference + offensiveDifference) * reboundingMultiplier
 }
 
+var reboundingCheckBox = document.getElementById("rebounding");
+var reboundingTotal = 0
 function similarityRebounding(playerA, playerB)
 {
-	return similarityTotalRebounding(playerA, playerB) + similarityReboundingEfficiency(playerA, playerB);
+	if(!reboundingCheckBox.checked)
+		return 0;
+	var value = similarityTotalRebounding(playerA, playerB) + similarityReboundingEfficiency(playerA, playerB);
+	reboundingTotal += value;
+	return value;
 }
 
 var defensiveShift = 3;
 function similarityVolumeDefense(playerA, playerB)
 {
-	var steals = Math.abs(playerA.defense.steals / playerA.minutes - playerB.defense.steals / playerB.minutes)
-	var blocks = Math.abs(playerA.defense.blocks / playerA.minutes - playerB.defense.blocks / playerB.minutes)
-	return (steals + blocks) * defensiveShift
+	var steals = Math.abs(playerA.defense.steals - playerB.defense.steals)
+	var blocks = Math.abs(playerA.defense.blocks - playerB.defense.blocks)
+	return (steals + blocks) / defensiveShift
 }
 
 var defensiveMultiplier = 5;
@@ -231,23 +242,38 @@ function similarityRimProtection(playerA, playerB)
 	return Math.abs(playerA.defense.fgPercentageDefenseRim - playerB.defense.fgPercentageDefenseRim) * defensiveMultiplier
 }
 
+var defenseCheckBox = document.getElementById("defense");
+//used for determining bench marks
+var defenseTotal = 0
 function similarityDefense(playerA, playerB)
 {
-	return 0
-	return similarityVolumeDefense(playerA, playerB) + similarityRimProtection(playerA, playerB);
+	if(!defenseCheckBox.checked)
+		return 0
+	var value = similarityVolumeDefense(playerA, playerB) + similarityRimProtection(playerA, playerB);
+	defenseTotal += value
+	return value;
 }
 
+var passingCheckBox = document.getElementById("passing")
+
 var assistsMultiplier = 10;
+var assistsTotal = 0
 function similarityAssists(playerA, playerB)
 {
-	return Math.abs((playerA.passing.assists + playerA.passing.assistedFreeThrows) / playerA.minutes - (playerB.passing.assistedFreeThrows + playerB.passing.assists) / playerB.minutes) * assistsMultiplier
+	if(!passingCheckBox.checked)
+	{
+		return 0
+	}
+	var value = Math.abs((playerA.passing.assists + playerA.passing.assistedFreeThrows) / playerA.minutes - (playerB.passing.assistedFreeThrows + playerB.passing.assists) / playerB.minutes) * assistsMultiplier
+	assistsTotal += value
+	return value
 }
 
 
 function similarity(playerA, playerB){
 	//if(!similarityRebounding(playerA, playerB))
 	//	console.log(playerA)
-	return similarityScoring(playerA, playerB) + similarityAssists + similarityMinutes(playerB, playerA) + similarityRebounding(playerA, playerB) + similarityDefense(playerA, playerB)
+	return similarityScoring(playerA, playerB) + similarityAssists(playerA, playerB)  + similarityRebounding(playerA, playerB) + similarityDefense(playerA, playerB)
 }
 
 function CompareBySimilarity(a,b){
@@ -307,10 +333,22 @@ for (var i = 0; i < players.length; i++)
 {
 	var player = players[i]
 	playerToSimilarPlayers[player.id] = playerToSimilarPlayers[player.id].sort(CompareBySimilarity)
-	//console.log(player.lastName)
-	for(var j = 0; j < 5; j++)
-	{
-		//console.log(playerToSimilarPlayers[player.id][j])
-	}	
+	
 }
+
+//used to calculate the number of times each function is called
+function numberOfCalls(n)
+{
+	if(n <= 1)
+		return 1;
+	return numberOfCalls(n - 1) + n;
+}
+
+var numberOfCalls = numberOfCalls(players.length)
+
 console.log('start')
+
+var reboundingAverage = reboundingTotal / numberOfCalls;
+var assistsAverage = assistsTotal / numberOfCalls
+var scoringAverage = scoringTotal / numberOfCalls
+var defenseAverage = defenseTotal / numberOfCalls

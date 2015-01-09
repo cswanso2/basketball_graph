@@ -1,4 +1,4 @@
-<script src="createGraph.js"></script>
+
 <!DOCTYPE html>
 <meta charset="utf-8">
 <script src="http://d3js.org/d3.v2.js?2.9.1"></script>
@@ -28,21 +28,21 @@ text {
 <div id="control">
   <form>
     <div>
-        <label><input type="checkbox" checked />Shooting</label>
+        <label><input type="checkbox" checked id="scoring"/>Scoring</label>
     </div>
     <div>
-        <label><input type="checkbox" checked />Passing</label>
+        <label><input type="checkbox"  checked id = "passing"/>Passing</label>
     </div>
     <div>
-        <label><input type="checkbox" checked />Rebounding</label>
+        <label><input type="checkbox" checked id="rebounding" />Rebounding</label>
     </div>
     <div>
-        <label><input type="checkbox" checked />Defense</label>
+        <label><input type="checkbox" checked id="defense" />Defense</label>
     </div>
 </form>
 </div>
 <div></div>
-
+<script src="createGraph.js"></script>
 <script>
 
 // http://blog.thomsonreuters.com/index.php/mobile-patent-suits-graphic-of-the-day/
@@ -51,22 +51,21 @@ for(var i =0; i < 463; i++)
 {
     playerA = players[i]
     otherPlayers = playerToSimilarPlayers[playerA.id]
-    var seed = Math.random();
-    var connections;
-    if(seed < .6)
-      connections = 1;
-    else if(seed < .95)
-      connections = 2
-    else
-      connections = 3
+    var connections = 3;
+    var flagged = false;
     for(var j = 0; j < connections; j++)
     {
         playerB = otherPlayers[j]
-        if(playerB.lastName == "Bogut")
+        if(playerB[0] < 12 - 4 * j)
         {
-          console.log(playerB)
+          links.push({source: playerA.firstName + " " + playerA.lastName, target: playerB[2] + " " + playerB[3], type: "connection"})
+          flagged = true
         }
-        links.push({source: playerA.firstName + " " + playerA.lastName, target: playerB[2] + " " + playerB[3], type: "connection"})
+    }
+    if(!flagged)
+    {
+      console.log(playerA.firstName)
+      links.push({source: playerA.firstName + " " + playerA.lastName, target: playerA.firstName + " " + playerA.lastName, type: "connection"})     
     }
 }
 
