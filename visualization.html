@@ -56,16 +56,24 @@ for(var i =0; i < 463; i++)
     otherPlayers = playerToSimilarPlayers[playerA.id]
     var connections = 3;
     var flagged = false;
-    playerNeighbors[playerA.firstName + " " + playerA.lastName] = []
+    playerAName = playerA.firstName + " " + playerA.lastName
+    if((playerAName == "Damjan Rudez"))
+      console.log("bla bla bla bla")
+    if(!(playerAName in playerNeighbors))
+    {
+      if(playerAName == "Damjan Rudez")
+      console.log("reset")
+      playerNeighbors[playerAName] = []
+    }
     for(var j = 0; j < connections; j++)
     {
         playerB = otherPlayers[j]
-        playerAName = playerA.firstName + " " + playerA.lastName
         playerBName = playerB[2] + " " + playerB[3]
         if(playerB[0] < 12 - 4 * j)
         {
+
           playerNeighbors[playerAName].push(playerBName)
-          if(playerNeighbors.indexOf(playerBName) < 0)
+          if(!(playerBName in playerNeighbors))
             playerNeighbors[playerBName] = []
           playerNeighbors[playerBName].push(playerAName)
           links.push({source: playerAName, target: playerBName, type: "connection"})
@@ -161,24 +169,25 @@ function nodeSelected(node, distance)
     }
 }
 
-
-
 function nodeReset(node)
 {
-
+    circle = d3.select(node).select("circle")
+    text = d3.select(node).select("text")
+    circle.style("fill", "grey")
+    text.style("fill", "grey")
 }
 
 function mouseover() {
-    nodeSelected(this)
-    d3.select(this).select("circle").transition()
+    /*d3.select(this).select("circle").transition()
       .duration(750)
-      .attr("r", 16);
+      .attr("r", 16);*/
     nodeSelected(this, 0)
     neighbors = playerNeighbors[this.id]
     alreadySelected =[]
     alreadySelected.push(this.id)
     for(i = 0; i < neighbors.length; i++)
     {
+      console.log(neighbors[i])
       neighbor = document.getElementById(neighbors[i])
       nodeSelected(neighbor, 1)
       alreadySelected.push(neighbors[i])
@@ -187,7 +196,6 @@ function mouseover() {
       for(var j = 0; j < secondLoopLength; j++)
       {
         secondNeigbor = document.getElementById(secondGenNeighbors[j])
-        console.log(secondGenNeighbors[j])
         if(alreadySelected.indexOf(secondGenNeighbors[j]) < 0)
           nodeSelected(secondNeigbor, 2)
       }
@@ -196,10 +204,21 @@ function mouseover() {
 
 
 function mouseout() {
-  d3.select(this).select("circle").transition()
-      .duration(750)
-      .attr("r", 8);
-  d3.select(this).select("text").style("visibility", "visible")
+    nodeReset(this)
+    neighbors = playerNeighbors[this.id]
+    for(i = 0; i < neighbors.length; i++)
+    {
+      console.log(neighbors[i])
+      neighbor = document.getElementById(neighbors[i])
+      nodeReset(neighbor)
+      secondGenNeighbors = playerNeighbors[neighbors[i]]
+      var secondLoopLength = secondGenNeighbors != null ? secondGenNeighbors.length : 0
+      for(var j = 0; j < secondLoopLength; j++)
+      {
+        secondNeigbor = document.getElementById(secondGenNeighbors[j])
+        nodeReset(secondNeigbor)
+      }
+    }
 }
 
 </script>
