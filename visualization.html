@@ -97,15 +97,15 @@ links.forEach(function(link) {
   link.target.id = link.source.id
 });
 
-var width = 3000,
-    height = 3000;
+var width = 1500,
+    height = 1500;
 
 var force = d3.layout.force()
     .nodes(d3.values(nodes))
     .links(links)
     .size([width, height])
-    .linkDistance(150)
-    .charge(-500)
+    .linkDistance(25)
+    .charge(-100)
     .on("tick", tick)
     .start();
 
@@ -115,8 +115,9 @@ var svg = d3.select("#graph").append("svg")
 
 var link = svg.selectAll(".link")
     .data(force.links())
-  .enter().append("line")
-    .attr("class", "link");
+    .enter().append("line")
+    .attr("class", "link")
+    .style("visibility", "hidden");
 
 var node = svg.selectAll(".node")
     .data(force.nodes())
@@ -126,6 +127,8 @@ var node = svg.selectAll(".node")
     .on("mouseover", mouseover)
     .on("mouseout", mouseout)
     .call(force.drag);
+
+
 
 node.append("circle")
     .attr("r", 8);
