@@ -50,7 +50,7 @@ var links = [];
 
 //used to find neigbors of a player, use first + " " + last to match d3.
 var playerNeighbors = [];
-for(var i =0; i < 463; i++)
+for(var i =0; i < players.length; i++)
 {
     playerA = players[i]
     otherPlayers = playerToSimilarPlayers[playerA.id]
@@ -192,7 +192,8 @@ function mouseover() {
     {
       console.log(neighbors[i])
       neighbor = document.getElementById(neighbors[i])
-      nodeSelected(neighbor, 1)
+      if(alreadySelected.indexOf(neighbors[i]) < 0)
+        nodeSelected(neighbor, 1)
       alreadySelected.push(neighbors[i])
       secondGenNeighbors = playerNeighbors[neighbors[i]]
       var secondLoopLength = secondGenNeighbors != null ? secondGenNeighbors.length : 0

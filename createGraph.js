@@ -352,3 +352,184 @@ var reboundingAverage = reboundingTotal / numberOfCalls;
 var assistsAverage = assistsTotal / numberOfCalls
 var scoringAverage = scoringTotal / numberOfCalls
 var defenseAverage = defenseTotal / numberOfCalls
+
+
+//inserted here
+var links = [];
+
+//used to find neigbors of a player, use first + " " + last to match d3.
+var playerNeighbors = [];
+for(var i =0; i < players.length; i++)
+{
+    playerA = players[i]
+    otherPlayers = playerToSimilarPlayers[playerA.id]
+    var connections = 3;
+    var flagged = false;
+    playerAName = playerA.firstName + " " + playerA.lastName
+    if((playerAName == "Damjan Rudez"))
+      console.log("bla bla bla bla")
+    if(!(playerAName in playerNeighbors))
+    {
+      if(playerAName == "Damjan Rudez")
+      console.log("reset")
+      playerNeighbors[playerAName] = []
+    }
+    for(var j = 0; j < connections; j++)
+    {
+        playerB = otherPlayers[j]
+        playerBName = playerB[2] + " " + playerB[3]
+        if(playerB[0] < 12 - 4 * j)
+        {
+
+          playerNeighbors[playerAName].push(playerBName)
+          if(!(playerBName in playerNeighbors))
+            playerNeighbors[playerBName] = []
+          playerNeighbors[playerBName].push(playerAName)
+          links.push({source: playerAName, target: playerBName, type: "connection"})
+          flagged = true
+        }
+    }
+    if(!flagged)
+    {
+      links.push({source: playerA.firstName + " " + playerA.lastName, target: playerA.firstName + " " + playerA.lastName, type: "connection"})     
+    }
+}
+
+
+var nodes = {};
+
+// Compute the distinct nodes from the links.
+links.forEach(function(link) {
+  link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
+  link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
+  link.source.id = link.source.name
+  link.target.id = link.source.id
+});
+
+var width = 1250,
+    height = 1500;
+
+var force = d3.layout.force()
+    .nodes(d3.values(nodes))
+    .links(links)
+    .size([width, height])
+    .linkDistance(25)
+    .charge(-100)
+    .on("tick", tick)
+    .start();
+
+var svg = d3.select("#graph").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var link = svg.selectAll(".link")
+    .data(force.links())
+    .enter().append("line")
+    .attr("class", "link")
+    .style("visibility", "hidden");
+
+var node = svg.selectAll(".node")
+    .data(force.nodes())
+  .enter().append("g")
+    .attr("class", "node")
+    .attr("id", function(node){return node.name})
+    .on("mouseover", mouseover)
+    .on("mouseout", mouseout)
+    .call(force.drag);
+
+
+
+node.append("circle")
+    .attr("r", 8);
+
+node.append("text")
+    .attr("x", 12)
+    .attr("dy", ".35em")
+    .text(function(d) { return d.name; });
+
+
+function tick() {
+  link
+      .attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; });
+
+  node
+      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+}
+
+//chance a node when it is hovered over to make it more apparant
+function nodeSelected(node, distance)
+{
+    circle = d3.select(node).select("circle")
+    text = d3.select(node).select("text")
+    if(distance == 0)
+    {
+      circle.style("fill", "red")
+      text.style("fill", "blue")
+    }
+    else if(distance == 1)
+    {
+      circle.style("fill", "purple")   
+      text.style("fill", "purple")
+    }
+    else
+    {
+      circle.style("fill", "blue")
+      text.style("fill", "blue")
+    }
+}
+
+function nodeReset(node)
+{
+    circle = d3.select(node).select("circle")
+    text = d3.select(node).select("text")
+    circle.style("fill", "grey")
+    text.style("fill", "grey")
+}
+
+function mouseover() {
+    /*d3.select(this).select("circle").transition()
+      .duration(750)
+      .attr("r", 16);*/
+    nodeSelected(this, 0)
+    neighbors = playerNeighbors[this.id]
+    alreadySelected =[]
+    alreadySelected.push(this.id)
+    for(i = 0; i < neighbors.length; i++)
+    {
+      console.log(neighbors[i])
+      neighbor = document.getElementById(neighbors[i])
+      if(alreadySelected.indexOf(neighbors[i]) < 0)
+        nodeSelected(neighbor, 1)
+      alreadySelected.push(neighbors[i])
+      secondGenNeighbors = playerNeighbors[neighbors[i]]
+      var secondLoopLength = secondGenNeighbors != null ? secondGenNeighbors.length : 0
+      for(var j = 0; j < secondLoopLength; j++)
+      {
+        secondNeigbor = document.getElementById(secondGenNeighbors[j])
+        if(alreadySelected.indexOf(secondGenNeighbors[j]) < 0)
+          nodeSelected(secondNeigbor, 2)
+      }
+    }
+}
+
+
+function mouseout() {
+    nodeReset(this)
+    neighbors = playerNeighbors[this.id]
+    for(i = 0; i < neighbors.length; i++)
+    {
+      console.log(neighbors[i])
+      neighbor = document.getElementById(neighbors[i])
+      nodeReset(neighbor)
+      secondGenNeighbors = playerNeighbors[neighbors[i]]
+      var secondLoopLength = secondGenNeighbors != null ? secondGenNeighbors.length : 0
+      for(var j = 0; j < secondLoopLength; j++)
+      {
+        secondNeigbor = document.getElementById(secondGenNeighbors[j])
+        nodeReset(secondNeigbor)
+      }
+    }
+}
